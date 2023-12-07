@@ -13,8 +13,8 @@ logger.add(sys.stdout, colorize=True, format="<green>{time}</green> <level>{mess
 logger.opt(colors=True)
 
 @app.post('/bots')
-def trends(param: str = None, country: str = None):
-    bot_graphic(param, country)
+def trends(param: str = None, country: str = None, date: str = None):
+    bot_graphic(param, country, date)
 
 if __name__ == "__main__":
     import uvicorn
