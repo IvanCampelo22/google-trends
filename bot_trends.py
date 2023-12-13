@@ -194,6 +194,7 @@ def bot_graphic(param, country: None, period: None, initial_date: None, end_date
                 print("Dados processados com sucesso.")
         except Exception as e:
             print(f"Erro ao processar e salvar dados no banco de dados: {e}")
+
     finally:
         driver.quit()
     
