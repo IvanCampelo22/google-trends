@@ -4,7 +4,6 @@ from loguru import logger
 import sys
 from fastapi import FastAPI
 from bot_trends import bot_graphic
-from bot_geo_map import bot_geo_map
 from datetime import datetime, timedelta
 
 actual_date = datetime.now()
@@ -24,12 +23,6 @@ logger.opt(colors=True)
 @app.post('/bots')
 def trends(param: str = None, country: str = None, period: str = 'Últimos 7 dias', initial_date: str = None, end_date: str = None):
     bot_graphic(param, country, period, initial_date, end_date)
-
-@app.post('/bots-geo-map')
-def geo_map(param: str = None):
-    bot_geo_map(param)
-
-
 
 if __name__ == "__main__":
     import uvicorn

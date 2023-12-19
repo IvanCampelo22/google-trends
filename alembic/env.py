@@ -5,7 +5,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from models import graph_models
+from models import graph_models, geo_map_models, related_entities_models, related_queries_models
 
 
 # this is the Alembic Config object, which provides
@@ -21,7 +21,7 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = graph_models.Base.metadata
+target_metadata = related_queries_models.Base.metadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
