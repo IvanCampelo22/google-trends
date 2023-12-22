@@ -6,8 +6,10 @@ from fastapi import FastAPI
 from bot_trends import bot_graphic
 from datetime import datetime, timedelta
 from models.graph_models import Graphic
+from models.geo_map_models import GeoMap
+from models.related_entities_models import RelatedEntitiesTop, RelatedEntitiesRising
+from models.related_queries_models import RelatedQueriesTop, RelatedQueriesRising
 from sqlalchemy.orm import Session
-from crud import multi_time_line
 from database.conn import SessionLocal, engine
 from models import graph_models
 
@@ -35,36 +37,19 @@ logger.add(sys.stdout, colorize=True, format="<green>{time}</green> <level>{mess
 logger.opt(colors=True)
 
 
-@app.post('/bots')
+@app.post('/scrapping')
 def trends(param: str = None, country: str = None, period: str = 'Últimos 7 dias', initial_date: str = None, end_date: str = None):
     bot_graphic(param, country, period, initial_date, end_date)
 
-@app.get("/graphics/{graphic_id}")
-def read_graphic(graphic_id: int):
-    db = SessionLocal()
-    graphic = db.query(Graphic).filter(Graphic.id == graphic_id).first()
-    db.close()
-    if graphic is None:
-        raise HTTPException(status_code=404, detail="Graphic not found")
-    return graphic
 
-@app.get("/graphics-all")
-def read_all_graphics():
-    db = SessionLocal()
-    graphics = db.query(Graphic).all()
-    db.close()
-    return graphics
-
-
-@app.get("/graphics-filters")
-def read_graphics(
+@app.get("/multi-timeline")
+def multi_timeline_filters(
     date: str = Query(None, description="Filter by date"),
     param: str = Query(None, description="Filter by param"),
     value: str = Query(None, description="Filter by value")
 ):
     db = SessionLocal()
     
-    # Construa a consulta com base nos filtros fornecidos
     query = db.query(Graphic)
     if date:
         query = query.filter(Graphic.date == date)
@@ -76,6 +61,131 @@ def read_graphics(
     graphics = query.all()
     db.close()
     return graphics
+
+
+@app.get("/geo-map")
+def get_all_geo_map_data(
+    param: str = Query(None, description="Filter by param"),
+    region: str = Query(None, descrption="Filter by region"),
+    initial_date: str = Query(None, description="Filter by initial date"),
+    end_date: str = Query(None, description="Filter by end date")
+):
+    db = SessionLocal()
+
+    query = db.query(GeoMap)
+    if param: 
+        query = query.filter(GeoMap.param == param)
+    if region:
+        query = query.filter(GeoMap.region == region)
+    if initial_date:
+        query = query.filter(GeoMap.initial_date == initial_date)
+    if end_date:
+        query = query.filter(GeoMap.end_date == end_date)
+
+    geomap = query.all()
+    db.close()
+    return geomap
+
+
+@app.get("/related-entities-top")
+def related_entities_top(
+    param: str = Query(None, description="Flter by param"),
+    region: str = Query(None, description="Filter by region"),
+    initial_date: str = Query(None, description="Filter by initial date"),
+    end_date: str = Query(None, description="Filter by end_date")
+
+):
+    db = SessionLocal()
+
+    query = db.query(RelatedEntitiesTop)
+    if param:
+        query = query.filter(RelatedEntitiesTop.param == param)
+    if region:
+        query = query.filter(RelatedEntitiesTop.region == region)
+    if initial_date:
+        query = query.filter(RelatedEntitiesTop.initial_date == initial_date)
+    if end_date:
+        query = query.filter(RelatedEntitiesTop.end_date == end_date)
+
+    related_entities_top = query.all()
+    db.close()
+    return related_entities_top
+
+
+@app.get("/related-entities-rising")
+def related_entities_rising(
+    param: str = Query(None, description="Flter by param"),
+    region: str = Query(None, description="Filter by region"),
+    initial_date: str = Query(None, description="Filter by initial date"),
+    end_date: str = Query(None, description="Filter by end_date")
+
+):
+    db = SessionLocal()
+
+    query = db.query(RelatedEntitiesRising)
+    if param:
+        query = query.filter(RelatedEntitiesRising.param == param)
+    if region:
+        query = query.filter(RelatedEntitiesRising.region == region)
+    if initial_date:
+        query = query.filter(RelatedEntitiesRising.initial_date == initial_date)
+    if end_date:
+        query = query.filter(RelatedEntitiesRising.end_date == end_date)
+
+    related_entities_rising = query.all()
+    db.close()
+    return related_entities_rising
+
+
+@app.get("/related-queries-top")
+def related_queries_top(
+    param: str = Query(None, description="Flter by param"),
+    region: str = Query(None, description="Filter by region"),
+    initial_date: str = Query(None, description="Filter by initial date"),
+    end_date: str = Query(None, description="Filter by end_date")
+
+):
+    db = SessionLocal()
+
+    query = db.query(RelatedQueriesTop)
+    if param:
+        query = query.filter(RelatedQueriesTop.param == param)
+    if region:
+        query = query.filter(RelatedQueriesTop.region == region)
+    if initial_date:
+        query = query.filter(RelatedQueriesTop.initial_date == initial_date)
+    if end_date:
+        query = query.filter(RelatedQueriesTop.end_date == end_date)
+
+    related_queries_top = query.all()
+    db.close()
+    return related_queries_top
+
+
+@app.get("/related-queries-rising")
+def related_queries_top(
+    param: str = Query(None, description="Flter by param"),
+    region: str = Query(None, description="Filter by region"),
+    initial_date: str = Query(None, description="Filter by initial date"),
+    end_date: str = Query(None, description="Filter by end_date")
+
+):
+    db = SessionLocal()
+
+    query = db.query(RelatedQueriesRising)
+    if param:
+        query = query.filter(RelatedQueriesRising.param == param)
+    if region:
+        query = query.filter(RelatedQueriesRising.region == region)
+    if initial_date:
+        query = query.filter(RelatedQueriesRising.initial_date == initial_date)
+    if end_date:
+        query = query.filter(RelatedQueriesRising.end_date == end_date)
+
+    related_queries_rising = query.all()
+    db.close()
+    return related_queries_rising
+
 
 if __name__ == "__main__":
     import uvicorn
