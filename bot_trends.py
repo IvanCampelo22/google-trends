@@ -20,8 +20,11 @@ from models.geo_map_models import GeoMap
 from models.related_entities_models import RelatedEntitiesTop, RelatedEntitiesRising
 from models.related_queries_models import RelatedQueriesTop, RelatedQueriesRising
 from database.conn import session
+from s3_upload import ObjectWrapper
 
 dir = '/home/ivan/Projects/Charisma/google-trends/files/'
+
+ObjectWrapper.put()
 
 def bot_graphic(param, country: None, period: None, initial_date: None, end_date: None) -> None:
     logger.info("Iniciando bot")
