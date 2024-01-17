@@ -20,11 +20,12 @@ from models.geo_map_models import GeoMap
 from models.related_entities_models import RelatedEntitiesTop, RelatedEntitiesRising
 from models.related_queries_models import RelatedQueriesTop, RelatedQueriesRising
 from database.conn import session
-from s3_upload import ObjectWrapper
+# from s3_upload import ObjectWrapper
 
 dir = '/home/ivan/Projects/Charisma/google-trends/files/'
+# dir = '/app/files/'
 
-ObjectWrapper.put()
+# ObjectWrapper.put()
 
 def bot_graphic(param, country: None, period: None, initial_date: None, end_date: None) -> None:
     logger.info("Iniciando bot")
@@ -38,6 +39,10 @@ def bot_graphic(param, country: None, period: None, initial_date: None, end_date
         file_path_related_queries = os.path.join(dir, f'relatedQueries.csv')
 
         chrome_options = Options()
+        chrome_options.add_argument('--no-sandbox')
+        # chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-gpu')
         chrome_options.add_experimental_option('prefs', {
             'download.default_directory': dir,
             'download.prompt_for_download': False,
@@ -46,7 +51,6 @@ def bot_graphic(param, country: None, period: None, initial_date: None, end_date
         })
 
         try: 
-            chrome_options.add_argument("--start-maximized")
             driver = webdriver.Chrome(options=chrome_options, service=Service(ChromeDriverManager().install()))
             link = 'https://trends.google.com.br/trends/'
             driver.get(link)
@@ -164,9 +168,9 @@ def bot_graphic(param, country: None, period: None, initial_date: None, end_date
 
             wait = WebDriverWait(driver, 60)
             export_button = WebDriverWait(driver, 60).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, 'button.widget-actions-item.export'))
+                EC.visibility_of_element_located((By.CSS_SELECTOR, 'body > div.trends-wrapper > div:nth-child(2) > div > md-content > div > div > div:nth-child(1) > trends-widget > ng-include > widget > div > div > div > widget-actions > div > button.widget-actions-item.export'))
             )
-            export_button.click()
+            export_button.send_keys(Keys.ENTER)
 
             WebDriverWait(driver, 60).until(
                 lambda x: len(os.listdir(dir)) > 0
@@ -251,12 +255,17 @@ def bot_graphic(param, country: None, period: None, initial_date: None, end_date
 
         try:
             logger.info("Iniciando interação com Sub-Região")
-            container_div = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.fe-geo-chart-generated.fe-atoms-generic-container')))
-            export_button = container_div.find_element(By.CSS_SELECTOR, 'button.widget-actions-item.export')
-            export_button.click()
-            WebDriverWait(driver, 60).until(
-                lambda x: len(os.listdir(dir)) > 0
-            )
+            try:
+                container_div = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'div.fe-geo-chart-generated.fe-atoms-generic-container')))
+                export_button = container_div.find_element(By.CSS_SELECTOR, 'button.widget-actions-item.export')
+                export_button.send_keys(Keys.ENTER)
+                logger.success("Baixando arquivo csv GeoMap")
+                WebDriverWait(driver, 60).until(
+                    lambda x: len(os.listdir(dir)) > 0
+                )
+            except Exception as e:
+                logger.error("Não foi possível clicar no botão") 
+                print(e)
             logger.success("Interação com Sub-Região concluida!")
         except Exception as e:
             pass
@@ -341,7 +350,7 @@ def bot_graphic(param, country: None, period: None, initial_date: None, end_date
         try: 
             logger.info("Clicando no botão para baixar csv de Assuntos Relacionados")
             export_button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[3]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
-            export_button.click()
+            driver.execute_script("arguments[0].click();", export_button)
             logger.success("Download de csv Assuntos Relacionados foi concluído!")
         except Exception as e: 
             logger.error(f"Erro ao clicar no botão para baixar o csv de Assuntos Relacionados: {e}")
@@ -474,7 +483,7 @@ def bot_graphic(param, country: None, period: None, initial_date: None, end_date
         try: 
             logger.info("Clicando no botão para baixar csv de Pesquisas Relacionadas")
             export_button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[4]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
-            export_button.click()
+            export_button.send_keys(Keys.ENTER)
             logger.success("Download de csv Pesquisas Relacionadas foi concluído!")
         except Exception as e: 
             logger.error(f"Erro ao clicar no botão para baixar csv de Pesquisas Relacionadas: {e}")
