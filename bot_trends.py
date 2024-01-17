@@ -22,9 +22,9 @@ from models.related_queries_models import RelatedQueriesTop, RelatedQueriesRisin
 from database.conn import session
 from s3_upload import ObjectWrapper
 
-dir = '/home/ivan/Projects/Charisma/google-trends/files/'
+dir = './files/'
 
-ObjectWrapper.put()
+#ObjectWrapper.put()
 
 def bot_graphic(param, country: None, period: None, initial_date: None, end_date: None) -> None:
     logger.info("Iniciando bot")
@@ -162,9 +162,9 @@ def bot_graphic(param, country: None, period: None, initial_date: None, end_date
 
         try:
 
-            wait = WebDriverWait(driver, 60)
-            export_button = WebDriverWait(driver, 60).until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, 'button.widget-actions-item.export'))
+            wait = WebDriverWait(driver, 30)
+            export_button = WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[1]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]'))
             )
             export_button.click()
 
