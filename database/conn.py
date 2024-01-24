@@ -10,8 +10,6 @@ NAME = os.getenv('DB_NAME_BOTS')
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://{USER}:{PASSWORD}@{HOST}/{NAME}"
 
-print(SQLALCHEMY_DATABASE_URL)
-
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
 )

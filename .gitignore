@@ -7,5 +7,9 @@ venv/
 files/
 
 logger_bot
+__pycache__
+*.pyc
+downloads
 
 data/
+.venv/

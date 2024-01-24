@@ -67,10 +67,12 @@
 - `alembic/`: Dentro dessa pasta fica tudo relacionado ao Alembic
   - `versions/`: Aqui fica os arquivos de migrações
   - `env.py`: Arquivo que podemos fazer algumas configurações no Alembic
+- `bot/`: Pasta onde fica tudo responsável pelo bot
+  - `scrapping.py`: Tratamento de dados e salva no banco de dados
+  - `bot_func.py`: Arquivo responsável por armazenar ações do selenium, como, por exemplo o clique em botões  
 - `database/`: Contém arquivos de conexão com o banco de dados
 - `models`: Pasta que abriga os models do banco de dados
 - `alembic.ini`: arquivo responsável por iniciar o alembic, contém informações do banco de dados
-- `bot_trends.py`: automação do Google Trends
 - `main.py`: arquivo responsável por iniciar o projeto
 
 
