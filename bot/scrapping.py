@@ -34,6 +34,7 @@ class Scrapping():
 
             chrome_options = Options()
             chrome_options.add_argument("--start-maximized")
+            chrome_options.add_argument("--no-sandbox")
             chrome_options.add_experimental_option('prefs', {
                 'download.default_directory': dir,
                 'download.prompt_for_download': False,
@@ -91,167 +92,168 @@ class Scrapping():
             
             sleep(20)
 
-            BotsFunctions.click_button_multi_timeline(wait)
+            present_graph = BotsFunctions.click_button_multi_timeline(wait)                    
+
+            if present_graph: 
+                logger.info("Iniciando processo de scrapping do Interesse ao Longo do Tempo")
+
+                with open(file_path_multi_time_line, "r", encoding="utf-8") as csv_file:
+                    csv_reader = csv.reader(csv_file)
                     
+                    for _ in range(6): 
+                        next(csv_reader)
 
-            logger.info("Iniciando processo de scrapping do Interesse ao Longo do Tempo")
+                    for row in csv_reader:
+                        tempo = row[0]
 
-            with open(file_path_multi_time_line, "r", encoding="utf-8") as csv_file:
-                csv_reader = csv.reader(csv_file)
+                        logger.info("Tratando dados")
+                        match = re.search(r'\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2})?(?:[-+]\d{2}:\d{2})?', tempo)
+
+                        if match:
+                            tempo_formatado = match.group(0)
+
+                            data_hora = datetime.strptime(tempo_formatado, '%Y-%m-%dT%H:%M:%S%z') if 'T' in tempo_formatado else datetime.strptime(tempo_formatado, '%Y-%m-%d')
+
+                            data = data_hora.strftime('%Y-%m-%d')
+                            hora = data_hora.strftime('%H:%M:%S')
+
+                            valor_str = row[1].replace("<", "").strip()
+
+                            numeros = re.findall(r'\d+', valor_str)
+
+                            valor = int(numeros[0]) if numeros else None
+
+                            print(f"Parâmetro de pesquisa: {param}")
+                            print(f"Data: {data}, Hora: {hora}, Valor: {valor}")
+
+                            DatabaseFunctions.save_multi_timeline(param, data, hora, valor)
+
+                    logger.success("Dados processados com sucesso.")
                 
-                for _ in range(6): 
-                    next(csv_reader)
 
-                for row in csv_reader:
-                    tempo = row[0]
+                sleep(10)
 
-                    logger.info("Tratando dados")
-                    match = re.search(r'\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2})?(?:[-+]\d{2}:\d{2})?', tempo)
+            present_graph = BotsFunctions.click_button_geo_map(wait)
 
-                    if match:
-                        tempo_formatado = match.group(0)
+            if present_graph:
+                logger.info("Iniciando processo de scrapping do Sub-Região")
+                with open(file_path_geo_map, "r", encoding="utf-8") as csv_file:
+                    csv_reader = csv.reader(csv_file)
 
-                        data_hora = datetime.strptime(tempo_formatado, '%Y-%m-%dT%H:%M:%S%z') if 'T' in tempo_formatado else datetime.strptime(tempo_formatado, '%Y-%m-%d')
+                    for _ in range(2): 
+                        next(csv_reader)
 
-                        data = data_hora.strftime('%Y-%m-%d')
-                        hora = data_hora.strftime('%H:%M:%S')
-
+                    for row in csv_reader:
+                        region = row[0]
                         valor_str = row[1].replace("<", "").strip()
-
                         numeros = re.findall(r'\d+', valor_str)
 
-                        valor = int(numeros[0]) if numeros else None
+                        value_region = int(numeros[0]) if numeros else None
 
-                        print(f"Parâmetro de pesquisa: {param}")
-                        print(f"Data: {data}, Hora: {hora}, Valor: {valor}")
+                        if re.search(r'\(\d{2}/\d{2}/\d{4}, \d{2}:\d{2} – \d{2}/\d{2}/\d{4}, \d{2}:\d{2}\)', row[1]):
+                            data_hora_str = re.search(r'(\d{2}/\d{2}/\d{4}, \d{2}:\d{2}) – (\d{2}/\d{2}/\d{4}, \d{2}:\d{2})', row[1])
+                            data_inicio = data_hora_str.group(1)
+                            data_fim = data_hora_str.group(2)
+                        
+                        print(f"Região: {region}, valor: {value_region}")
+                        print(f"Data Inicial: {data_inicio}, Data Final: {data_fim}")
 
-                        DatabaseFunctions.save_multi_timeline(param, data, hora, valor)
-
-                logger.success("Dados processados com sucesso.")
-            
-
-            sleep(10)
-
-            BotsFunctions.click_button_geo_map(wait)
-
-            logger.info("Iniciando processo de scrapping do Sub-Região")
-            with open(file_path_geo_map, "r", encoding="utf-8") as csv_file:
-                csv_reader = csv.reader(csv_file)
-
-                for _ in range(2): 
-                    next(csv_reader)
-
-                for row in csv_reader:
-                    region = row[0]
-                    valor_str = row[1].replace("<", "").strip()
-                    numeros = re.findall(r'\d+', valor_str)
-
-                    value_region = int(numeros[0]) if numeros else None
-
-                    if re.search(r'\(\d{2}/\d{2}/\d{4}, \d{2}:\d{2} – \d{2}/\d{2}/\d{4}, \d{2}:\d{2}\)', row[1]):
-                        data_hora_str = re.search(r'(\d{2}/\d{2}/\d{4}, \d{2}:\d{2}) – (\d{2}/\d{2}/\d{4}, \d{2}:\d{2})', row[1])
-                        data_inicio = data_hora_str.group(1)
-                        data_fim = data_hora_str.group(2)
-                    
-                    print(f"Região: {region}, valor: {value_region}")
-                    print(f"Data Inicial: {data_inicio}, Data Final: {data_fim}")
-
-                    DatabaseFunctions.save_region(param, data_inicio, data_fim, region, value_region)
-            
-            sleep(10)
+                        DatabaseFunctions.save_region(param, data_inicio, data_fim, region, value_region)
+                
+                sleep(10)
 
             BotsFunctions.scroll(driver)
             
             try:
 
-                BotsFunctions.click_button_related_entities(wait)
+                present_graph = BotsFunctions.click_button_related_entities(wait)
 
-                logger.info("Iniciando processo de scrapping de Assuntos Relacionados TOP")
-                with open(file_path_related_entities, "r", encoding="utf-8") as csv_file:
-                    csv_reader = csv.reader(csv_file)
+                if present_graph:
+                    logger.info("Iniciando processo de scrapping de Assuntos Relacionados TOP")
+                    with open(file_path_related_entities, "r", encoding="utf-8") as csv_file:
+                        csv_reader = csv.reader(csv_file)
 
-                    for _ in range(4):
-                        next(csv_reader)
+                        for _ in range(4):
+                            next(csv_reader)
 
-                    for row in csv_reader:
-                        entities = row[0]
-                        value_str = row[1].replace("<", "").strip()
-                        numeros = re.findall(r'\d+', value_str)
+                        for row in csv_reader:
+                            entities = row[0]
+                            value_str = row[1].replace("<", "").strip()
+                            numeros = re.findall(r'\d+', value_str)
 
-                        value_related_entities = int(numeros[0]) if numeros else None
+                            value_related_entities = int(numeros[0]) if numeros else None
 
-                        DatabaseFunctions.save_related_entities_top(param, country, data_inicio, data_fim, entities, value_related_entities)
-            
-                        logger.info("Iniciando processo de scrapping de Assuntos Relacionados RISING")
-                        rising_data = []
-                        with open(file_path_related_entities, "r", encoding="utf-8") as file:
-                            current_section = None
-                            for line in file:
-                                line = line.strip()
-                                
-                                if line == "RISING":
-                                    current_section = rising_data
-                                elif current_section is not None and line:
-                                    parts = line.split(",")
-                                    if len(parts) == 2:
-                                        entity, value = [part.strip() for part in parts]
-                                        current_section.append((entity, value))
+                            DatabaseFunctions.save_related_entities_top(param, country, data_inicio, data_fim, entities, value_related_entities)
+                
+                            logger.info("Iniciando processo de scrapping de Assuntos Relacionados RISING")
+                            rising_data = []
+                            with open(file_path_related_entities, "r", encoding="utf-8") as file:
+                                current_section = None
+                                for line in file:
+                                    line = line.strip()
+                                    
+                                    if line == "RISING":
+                                        current_section = rising_data
+                                    elif current_section is not None and line:
+                                        parts = line.split(",")
+                                        if len(parts) == 2:
+                                            entity, value = [part.strip() for part in parts]
+                                            current_section.append((entity, value))
 
-                        for entity, value in rising_data:
-                            print(f"Entidade: {entity}")
-                            print(f"Valor: {value}")
-                            print() 
+                            for entity, value in rising_data:
+                                print(f"Entidade: {entity}")
+                                print(f"Valor: {value}")
+                                print() 
 
-                            DatabaseFunctions.save_related_entities_rising(param, country, data_inicio, data_fim, entity, value)
+                                DatabaseFunctions.save_related_entities_rising(param, country, data_inicio, data_fim, entity, value)
 
             except Exception as e:
                 logger.error(e)
             
-            finally:
-                pass
-                        
+                       
             sleep(10)
 
             try:
-                BotsFunctions.click_button_related_queries(wait)
+                present_graph = BotsFunctions.click_button_related_queries(wait)
 
-                logger.info("Iniciando processo de scrapping de Pesquisas Relacionados TOP")
-                with open(file_path_related_queries, "r", encoding="utf-8") as csv_file:
-                    csv_reader = csv.reader(csv_file)
+                if present_graph:
+                    logger.info("Iniciando processo de scrapping de Pesquisas Relacionados TOP")
+                    with open(file_path_related_queries, "r", encoding="utf-8") as csv_file:
+                        csv_reader = csv.reader(csv_file)
 
-                    for _ in range(4):
-                        next(csv_reader)
+                        for _ in range(4):
+                            next(csv_reader)
 
-                    for row in csv_reader:
-                        entities = row[0]
-                        value_str = row[1].replace("<", "").strip()
-                        numeros = re.findall(r'\d+', value_str)
+                        for row in csv_reader:
+                            entities = row[0]
+                            value_str = row[1].replace("<", "").strip()
+                            numeros = re.findall(r'\d+', value_str)
 
-                        value_related_queries = int(numeros[0]) if numeros else None
+                            value_related_queries = int(numeros[0]) if numeros else None
 
-                        DatabaseFunctions.save_related_queries_top(param, country, data_inicio, data_fim, entities,value_related_entities, value_related_queries)
-                
-                        logger.info("Iniciando processo de scrapping de Pesquisas Relacionadas RISING")
-                        rising_data = []
-                        with open(file_path_related_queries, "r", encoding="utf-8") as file:
-                            current_section = None
-                            for line in file:
-                                line = line.strip()
-                                
-                                if line == "RISING":
-                                    current_section = rising_data
-                                elif current_section is not None and line:
-                                    parts = line.split(",")
-                                    if len(parts) == 2:
-                                        entity, value = [part.strip() for part in parts]
-                                        current_section.append((entity, value))
+                            DatabaseFunctions.save_related_queries_top(param, country, data_inicio, data_fim, entities,value_related_entities, value_related_queries)
+                    
+                            logger.info("Iniciando processo de scrapping de Pesquisas Relacionadas RISING")
+                            rising_data = []
+                            with open(file_path_related_queries, "r", encoding="utf-8") as file:
+                                current_section = None
+                                for line in file:
+                                    line = line.strip()
+                                    
+                                    if line == "RISING":
+                                        current_section = rising_data
+                                    elif current_section is not None and line:
+                                        parts = line.split(",")
+                                        if len(parts) == 2:
+                                            entity, value = [part.strip() for part in parts]
+                                            current_section.append((entity, value))
 
-                        for entity, value in rising_data:
-                            print(f"Entidade: {entity}")
-                            print(f"Valor: {value}")
-                            print()
+                            for entity, value in rising_data:
+                                print(f"Entidade: {entity}")
+                                print(f"Valor: {value}")
+                                print()
 
-                            DatabaseFunctions.save_related_queries_rising(param, country, data_inicio, data_fim, entity, value)
+                                DatabaseFunctions.save_related_queries_rising(param, country, data_inicio, data_fim, entity, value)
 
 
             except IndexError:

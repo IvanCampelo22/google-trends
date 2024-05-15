@@ -15,26 +15,28 @@ class BotsFunctions():
 
         def by_region(driver, wait, country):
                 logger.info("Interagindo com o campo de busca por região")
-                body_element = driver.find_element(By.TAG_NAME, 'body')
-                body_element.click()
+                country_name = driver.find_element(By.XPATH, '//*[@id="compare-pickers-wrapper"]/div/hierarchy-picker[1]/ng-include/div[1]/div').text 
+                if country_name != country:
+                        body_element = driver.find_element(By.TAG_NAME, 'body')
+                        body_element.click()
 
-                country_selector_trigger = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".hierarchy-select.ng-pristine.ng-valid")))
-                country_selector_trigger.click()
+                        country_selector_trigger = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".hierarchy-select.ng-pristine.ng-valid")))
+                        country_selector_trigger.click()
 
-                element = wait.until(EC.visibility_of_element_located((By.ID, 'input-8')))
+                        element = wait.until(EC.visibility_of_element_located((By.ID, 'input-8')))
 
-                wait.until(EC.element_to_be_clickable((By.ID, 'input-8')))
+                        wait.until(EC.element_to_be_clickable((By.ID, 'input-8')))
 
-                element.clear()
-                sleep(3)
-                element.send_keys(country)
+                        element.clear()
+                        sleep(3)
+                        element.send_keys(country)
 
-                country_option = wait.until(EC.element_to_be_clickable((By.XPATH, f"//span[contains(text(), '{country}')]")))
-                country_option.click()
+                        country_option = wait.until(EC.element_to_be_clickable((By.XPATH, f"//span[contains(text(), '{country}')]")))
+                        country_option.click()
 
-                logger.success("Busca por região foi concluida!")
+                        logger.success("Busca por região foi concluida!")
 
-                sleep(10)
+                        sleep(10)
 
 
         def filter_date(driver, wait, period):
@@ -98,10 +100,11 @@ class BotsFunctions():
 
         def click_button_multi_timeline(wait):
                 logger.info("Iniciando interação com Interesse ao Longo do tempo")
-                export_button = wait.until(
-                EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[1]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]'))
-                )
-                if export_button:
+                try:
+                        export_button = wait.until(                
+                        EC.visibility_of_element_located((By.XPATH, '1/html/body/div[3]/div[2]/div/md-content/div/div/div[1]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]'))
+                        )
+
                         logger.success("Botão capturado com sucesso")
                         export_button.click()
                         sleep(2)
@@ -110,17 +113,21 @@ class BotsFunctions():
                                 lambda x: len(os.listdir(dir)) > 0
                         )
 
-                else: 
-                        print("Botão não encontrado")
-                        return ''
-                        
-                sleep(20)
-                
+                        sleep(10)
+                        return True
 
+                except:
+                        logger.error("Gráfico Multi Timeline não encontrado")
+                        logger.info("Seguindo para o próximo gráfico...")
+                        sleep(10)
+                        return False
+                
+                
         def click_button_geo_map(wait):
-                logger.info("Iniciando interação com Sub-Região")
+                logger.info("Iniciando interação com Sub-Região")                                                                              
                 export_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[2]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
-                if export_button:
+               
+                try:
                         logger.success('Botao para download capturado')
                         export_button.click()
                         sleep(2)
@@ -128,11 +135,14 @@ class BotsFunctions():
                         wait.until(
                         lambda x: len(os.listdir(dir)) > 0
                         )
-                else: 
-                        logger.error('Botão não encontrado')
-                        return ''
-                
-                sleep(20)
+                        sleep(10)
+                        return False
+
+                except:
+                        logger.error("Gráfico Geo Map não encontrado")
+                        logger.info("Seguindo para o próximo gráfico...")
+                        sleep(10)
+                        return False
 
 
         def scroll(driver):
@@ -146,26 +156,31 @@ class BotsFunctions():
 
         
         def click_button_related_entities(wait):
-                logger.info("Clicando no botão para baixar csv de Assuntos Relacionados")
-                export_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[3]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
-                if export_button: 
+                try:
+                        logger.info("Clicando no botão para baixar csv de Assuntos Relacionados")
+                        export_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[3]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
+                
                         logger.success('Botao para download capturado')
                         export_button.click()
-                else: 
-                        logger.error('Botão não encontrado')
-                        return ''
-        
-                sleep(10)
+                        sleep(10)
+                        return True
+                except:
+                        logger.error("Gráfico Related Entities não encontrado")
+                        logger.info("Seguindo para o próximo gráfico...")
+                        sleep(10)
+                        return False
 
 
         def click_button_related_queries(wait):
-                logger.info("Clicando no botão para baixar csv de Pesquisas Relacionadas")
-                export_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[4]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
-                if export_button:
+                try:
+                        logger.info("Clicando no botão para baixar csv de Pesquisas Relacionadas")
+                        export_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[4]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
                         logger.success("Botão para download encontrado")
                         export_button.click()
-                else:
-                        logger.error("Botão não encontrado")
-                        return ''
-
-                sleep(10)
+                        sleep(10)
+                        return True
+                except:
+                        logger.error("Gráfico Related Queries não encontrado")
+                        logger.info("Seguindo para o próximo gráfico...")
+                        sleep(10)
+                        return False

@@ -3,6 +3,7 @@ import logging
 from loguru import logger 
 import sys
 from fastapi import FastAPI
+from schemas.scrapping import ScrappingRequest
 from bot.scrapping import Scrapping
 from datetime import datetime, timedelta
 from models.graph_models import Graphic
@@ -30,8 +31,8 @@ logger.opt(colors=True)
 
 
 @app.post('/scrapping')
-def trends(param: str = None, country: str = None, period: str = 'Últimos 7 dias', initial_date: str = None, end_date: str = None):
-    Scrapping.gooole_trends(param, country, period, initial_date, end_date)
+def trends(request: ScrappingRequest):
+    Scrapping.gooole_trends(request.param, request.country, request.period, request.initial_date, request.end_date)
 
 
 @app.get("/multi-timeline")
