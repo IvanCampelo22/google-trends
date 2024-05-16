@@ -35,6 +35,7 @@ class Scrapping():
             chrome_options = Options()
             chrome_options.add_argument("--start-maximized")
             chrome_options.add_argument("--no-sandbox")
+            # chrome_options.add_argument("--headless")
             chrome_options.add_experimental_option('prefs', {
                 'download.default_directory': dir,
                 'download.prompt_for_download': False,
@@ -92,7 +93,12 @@ class Scrapping():
             
             sleep(20)
 
-            present_graph = BotsFunctions.click_button_multi_timeline(wait)                    
+            try:
+                driver.find_element(By.XPATH, '//*[@id="cookieBar"]/div/span[2]/a[2]').click()
+            except:
+                pass
+
+            present_graph = BotsFunctions.click_button_multi_timeline(driver, wait)                    
 
             if present_graph: 
                 logger.info("Iniciando processo de scrapping do Interesse ao Longo do Tempo")
@@ -130,10 +136,9 @@ class Scrapping():
 
                     logger.success("Dados processados com sucesso.")
                 
-
                 sleep(10)
 
-            present_graph = BotsFunctions.click_button_geo_map(wait)
+            present_graph = BotsFunctions.click_button_geo_map(driver, wait)
 
             if present_graph:
                 logger.info("Iniciando processo de scrapping do Sub-Região")
@@ -166,7 +171,7 @@ class Scrapping():
             
             try:
 
-                present_graph = BotsFunctions.click_button_related_entities(wait)
+                present_graph = BotsFunctions.click_button_related_entities(driver, wait)
 
                 if present_graph:
                     logger.info("Iniciando processo de scrapping de Assuntos Relacionados TOP")
@@ -214,7 +219,7 @@ class Scrapping():
             sleep(10)
 
             try:
-                present_graph = BotsFunctions.click_button_related_queries(wait)
+                present_graph = BotsFunctions.click_button_related_queries(driver, wait)
 
                 if present_graph:
                     logger.info("Iniciando processo de scrapping de Pesquisas Relacionados TOP")

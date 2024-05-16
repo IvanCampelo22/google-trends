@@ -98,15 +98,12 @@ class BotsFunctions():
                 sleep(10)  
 
 
-        def click_button_multi_timeline(wait):
+        def click_button_multi_timeline(driver, wait):
                 logger.info("Iniciando interação com Interesse ao Longo do tempo")
                 try:
-                        export_button = wait.until(                
-                        EC.visibility_of_element_located((By.XPATH, '1/html/body/div[3]/div[2]/div/md-content/div/div/div[1]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]'))
-                        )
+                        driver.find_elements(By.XPATH, "//button[@class='widget-actions-item export']")[0].click()
 
                         logger.success("Botão capturado com sucesso")
-                        export_button.click()
                         sleep(2)
 
                         wait.until(
@@ -123,13 +120,13 @@ class BotsFunctions():
                         return False
                 
                 
-        def click_button_geo_map(wait):
+        def click_button_geo_map(driver, wait):
                 logger.info("Iniciando interação com Sub-Região")                                                                              
-                export_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[2]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
                
                 try:
-                        logger.success('Botao para download capturado')
-                        export_button.click()
+                        driver.find_elements(By.XPATH, "//button[@class='widget-actions-item export']")[1].click()
+
+                        logger.success("Botão capturado com sucesso")
                         sleep(2)
 
                         wait.until(
@@ -155,13 +152,13 @@ class BotsFunctions():
                 sleep(10)
 
         
-        def click_button_related_entities(wait):
+        def click_button_related_entities(driver, wait):
                 try:
-                        logger.info("Clicando no botão para baixar csv de Assuntos Relacionados")
-                        export_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[3]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
-                
-                        logger.success('Botao para download capturado')
-                        export_button.click()
+                        driver.find_elements(By.XPATH, "//button[@class='widget-actions-item export']")[2].click()
+
+                        logger.success("Botão capturado com sucesso")
+                        sleep(2)
+
                         sleep(10)
                         return True
                 except:
@@ -171,12 +168,12 @@ class BotsFunctions():
                         return False
 
 
-        def click_button_related_queries(wait):
+        def click_button_related_queries(driver, wait):
                 try:
-                        logger.info("Clicando no botão para baixar csv de Pesquisas Relacionadas")
-                        export_button = wait.until(EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[4]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]')))
-                        logger.success("Botão para download encontrado")
-                        export_button.click()
+                        driver.find_elements(By.XPATH, "//button[@class='widget-actions-item export']")[3].click()
+
+                        logger.success("Botão capturado com sucesso")
+                        sleep(2)
                         sleep(10)
                         return True
                 except:
