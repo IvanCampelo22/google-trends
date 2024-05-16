@@ -102,17 +102,13 @@ class BotsFunctions():
                 EC.visibility_of_element_located((By.XPATH, '/html/body/div[3]/div[2]/div/md-content/div/div/div[1]/trends-widget/ng-include/widget/div/div/div/widget-actions/div/button[1]'))
                 )
                 if export_button:
-                        try: 
-                                logger.success("Botão capturado com sucesso")
-                                export_button.click()
-                                logger.success("Botão clicado")
-                                sleep(2)
+                        logger.success("Botão capturado com sucesso")
+                        export_button.click()
+                        sleep(2)
 
-                                wait.until(
-                                        lambda x: len(os.listdir(dir)) > 0
-                                )
-                        except Exception as e:
-                                print(e)
+                        wait.until(
+                                lambda x: len(os.listdir(dir)) > 0
+                        )
 
                 else: 
                         print("Botão não encontrado")

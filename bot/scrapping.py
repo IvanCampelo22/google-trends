@@ -24,8 +24,6 @@ class Scrapping():
     def gooole_trends(param, country: None, period: None, initial_date: None, end_date: None) -> None:
         logger.info("Iniciando bot")
 
-        global driver
-
         try:
             chrome_options = Options()
 
@@ -35,10 +33,7 @@ class Scrapping():
             file_path_related_queries = os.path.join(dir, f'relatedQueries.csv')
 
             chrome_options = Options()
-            # chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--start-maximized')
-            # chrome_options.add_argument('--disable-dev-shm-usage')
-            # chrome_options.add_argument('--disable-gpu')
+            chrome_options.add_argument("--start-maximized")
             chrome_options.add_experimental_option('prefs', {
                 'download.default_directory': dir,
                 'download.prompt_for_download': False,
